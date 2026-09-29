@@ -1,6 +1,6 @@
 'use client'
 
-import type { KeyboardEvent, PointerEvent } from 'react'
+import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useForm, useFormFields } from '@payloadcms/ui'
@@ -14,7 +14,7 @@ type PageValues = Record<string, unknown> & {
   title?: unknown
 }
 
-type PreviewDevice = 'desktop' | 'mobile' | 'tablet'
+type PreviewDevice = 'desktop' | 'laptop' | 'mobile' | 'tablet'
 
 type VisualEditUpdate = {
   path: string
@@ -23,17 +23,39 @@ type VisualEditUpdate = {
 
 const deviceWidths: Record<PreviewDevice, number> = {
   desktop: 1440,
-  mobile: 390,
+  laptop: 1024,
+  mobile: 375,
   tablet: 768,
 }
 
-const DEFAULT_PANEL_WIDTH = 520
-const MAX_PANEL_WIDTH = 920
-const MIN_PANEL_WIDTH = 300
-const PANEL_WIDTH_STORAGE_KEY = 'cms-profesional-page-preview-width'
+const DEFAULT_FORM_PANEL_WIDTH = 480
+const MAX_FORM_PANEL_WIDTH = 720
+const MIN_FORM_PANEL_WIDTH = 280
+const MIN_PREVIEW_PANEL_WIDTH = 320
+const FORM_PANEL_WIDTH_STORAGE_KEY = 'cms-profesional-page-form-width'
+const FORM_COLLAPSED_STORAGE_KEY = 'cms-profesional-page-form-collapsed'
+const PREVIEW_COLLAPSED_STORAGE_KEY = 'cms-profesional-page-preview-collapsed'
 
-const clampPanelWidth = (width: number) =>
-  Math.min(MAX_PANEL_WIDTH, Math.max(MIN_PANEL_WIDTH, Math.round(width)))
+const clampFormPanelWidth = (width: number) => {
+  if (typeof window === 'undefined') {
+    return Math.min(MAX_FORM_PANEL_WIDTH, Math.max(MIN_FORM_PANEL_WIDTH, Math.round(width)))
+  }
+
+  if (window.innerWidth < 768) {
+    return Math.min(MAX_FORM_PANEL_WIDTH, Math.max(MIN_FORM_PANEL_WIDTH, Math.round(width)))
+  }
+
+  const reservedForPreview = MIN_PREVIEW_PANEL_WIDTH + 24
+  const viewportMax = Math.max(
+    MIN_FORM_PANEL_WIDTH,
+    Math.min(MAX_FORM_PANEL_WIDTH, window.innerWidth - reservedForPreview),
+  )
+
+  return Math.min(
+    viewportMax,
+    Math.max(MIN_FORM_PANEL_WIDTH, Math.round(width)),
+  )
+}
 
 const getPublicBaseUrl = () => {
   const configuredUrl =
@@ -78,11 +100,15 @@ const isVisualEditUpdate = (value: unknown): value is VisualEditUpdate =>
 
 export function PagePreviewPanel() {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const frameWrapRef = useRef<HTMLDivElement>(null)
+  const lastFormPanelWidthRef = useRef(DEFAULT_FORM_PANEL_WIDTH)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isFormCollapsed, setIsFormCollapsed] = useState(false)
+  const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(false)
   const [device, setDevice] = useState<PreviewDevice>('desktop')
-  const [hasLoadedPanelWidth, setHasLoadedPanelWidth] = useState(false)
-  const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_WIDTH)
+  const [hasLoadedFormPanelWidth, setHasLoadedFormPanelWidth] = useState(false)
+  const [leftWidth, setLeftWidth] = useState(DEFAULT_FORM_PANEL_WIDTH)
   const [refreshKey, setRefreshKey] = useState(0)
   const [status, setStatus] = useState('Lista')
   const { setModified } = useForm()
@@ -91,6 +117,7 @@ export function PagePreviewPanel() {
     reduceFieldsToValues(fields, true),
   ) as PageValues
   const [previewValues, setPreviewValues] = useState<PageValues>(values)
+  const [previewPanelSize, setPreviewPanelSize] = useState({ height: 760, width: 1024 })
   const valuesSignature = useMemo(() => JSON.stringify(values), [values])
   const url = useMemo(() => {
     const previewUrl = new URL(
@@ -100,24 +127,165 @@ export function PagePreviewPanel() {
     previewUrl.searchParams.set('cmsPreview', 'page')
     return previewUrl.toString()
   }, [previewValues.slug, previewValues.title])
+  const selectedViewportWidth = deviceWidths[device]
+  const previewUsableWidth = Math.max(240, previewPanelSize.width - 32)
+  const previewScale = Math.min(
+    1,
+    Math.max(0.24, previewUsableWidth / selectedViewportWidth),
+  )
+  const minimumScaledPreviewHeight = previewPanelSize.width < 520 ? 520 : 720
+  const scaledPreviewHeight = Math.max(
+    minimumScaledPreviewHeight,
+    Math.floor(Math.max(320, previewPanelSize.height - 24) / previewScale),
+  )
 
   useEffect(() => {
-    const storedWidth = Number(window.localStorage.getItem(PANEL_WIDTH_STORAGE_KEY))
+    const storedCollapsed = window.localStorage.getItem(FORM_COLLAPSED_STORAGE_KEY)
+    const initialWidth = clampFormPanelWidth(DEFAULT_FORM_PANEL_WIDTH)
 
-    if (Number.isFinite(storedWidth)) {
-      setPanelWidth(clampPanelWidth(storedWidth))
+    setLeftWidth(initialWidth)
+    lastFormPanelWidthRef.current = initialWidth
+    window.localStorage.setItem(FORM_PANEL_WIDTH_STORAGE_KEY, String(initialWidth))
+    window.localStorage.setItem(PREVIEW_COLLAPSED_STORAGE_KEY, 'false')
+
+    if (storedCollapsed === 'true') {
+      setLeftWidth(0)
+      setIsFormCollapsed(true)
     }
 
-    setHasLoadedPanelWidth(true)
+    setHasLoadedFormPanelWidth(true)
   }, [])
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--cms-profesional-page-preview-width', `${panelWidth}px`)
+    const element = frameWrapRef.current
 
-    if (hasLoadedPanelWidth) {
-      window.localStorage.setItem(PANEL_WIDTH_STORAGE_KEY, String(panelWidth))
+    if (!element) {
+      return
     }
-  }, [hasLoadedPanelWidth, panelWidth])
+
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) {
+        return
+      }
+
+      setPreviewPanelSize({
+        height: Math.max(360, Math.floor(entry.contentRect.height)),
+        width: Math.max(280, Math.floor(entry.contentRect.width)),
+      })
+    })
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const layoutContainer = document.querySelector<HTMLElement>(
+      '.collection-edit--pages:has(.app-page-preview) .document-fields',
+    )
+    const leftPanel = layoutContainer?.querySelector<HTMLElement>('.document-fields__edit')
+    const rightPanel = layoutContainer?.querySelector<HTMLElement>('.document-fields__sidebar-wrap')
+
+    layoutContainer?.classList.add('admin-layout-container')
+    leftPanel?.classList.add('admin-left-panel')
+    rightPanel?.classList.add('admin-right-shell')
+
+    return () => {
+      leftPanel?.style.removeProperty('display')
+      leftPanel?.style.removeProperty('flex-basis')
+      leftPanel?.style.removeProperty('width')
+      layoutContainer?.classList.remove('admin-layout-container')
+      leftPanel?.classList.remove('admin-left-panel')
+      rightPanel?.classList.remove('admin-right-shell')
+    }
+  }, [])
+
+  useEffect(() => {
+    const updateAvailableHeight = () => {
+      const layoutContainer = document.querySelector<HTMLElement>(
+        '.collection-edit--pages:has(.app-page-preview) .document-fields',
+      )
+
+      if (!layoutContainer) {
+        return
+      }
+
+      const { top } = layoutContainer.getBoundingClientRect()
+      const minimumHeight = window.innerWidth < 768 ? 520 : 680
+      const availableHeight = Math.max(
+        minimumHeight,
+        Math.floor(window.innerHeight - Math.max(top, 0) - 16),
+      )
+
+      layoutContainer.style.setProperty('--page-composer-available-height', `${availableHeight}px`)
+      document.documentElement.style.setProperty(
+        '--page-composer-available-height',
+        `${availableHeight}px`,
+      )
+    }
+
+    updateAvailableHeight()
+
+    window.addEventListener('resize', updateAvailableHeight)
+    window.addEventListener('orientationchange', updateAvailableHeight)
+
+    return () => {
+      window.removeEventListener('resize', updateAvailableHeight)
+      window.removeEventListener('orientationchange', updateAvailableHeight)
+    }
+  }, [])
+
+  useEffect(() => {
+    document.body.classList.toggle('is-page-form-collapsed', isFormCollapsed)
+    window.localStorage.setItem(FORM_COLLAPSED_STORAGE_KEY, String(isFormCollapsed))
+
+    return () => {
+      document.body.classList.remove('is-page-form-collapsed')
+    }
+  }, [isFormCollapsed])
+
+  useEffect(() => {
+    document.body.classList.toggle('is-page-preview-collapsed', isPreviewCollapsed)
+    window.localStorage.setItem(PREVIEW_COLLAPSED_STORAGE_KEY, String(isPreviewCollapsed))
+
+    return () => {
+      document.body.classList.remove('is-page-preview-collapsed')
+    }
+  }, [isPreviewCollapsed])
+
+  useEffect(() => {
+    const leftPanel = document.querySelector<HTMLElement>(
+      '.collection-edit--pages:has(.app-page-preview) .document-fields__edit',
+    )
+    const layoutContainer = document.querySelector<HTMLElement>(
+      '.collection-edit--pages:has(.app-page-preview) .document-fields',
+    )
+    const isLeftPanelCollapsed = leftWidth === 0
+    const nextWidth = isLeftPanelCollapsed
+      ? '0px'
+      : isPreviewCollapsed
+        ? 'calc(100% - 24px)'
+        : `${leftWidth}px`
+
+    if (leftPanel) {
+      leftPanel.style.display = isLeftPanelCollapsed ? 'none' : 'block'
+      leftPanel.style.flexBasis = nextWidth
+      leftPanel.style.width = nextWidth
+    }
+
+    layoutContainer?.style.setProperty('--left-panel-width', nextWidth)
+    document.documentElement.style.setProperty(
+      '--cms-profesional-page-form-width',
+      nextWidth,
+    )
+
+    if (!isFormCollapsed && !isPreviewCollapsed) {
+      lastFormPanelWidthRef.current = leftWidth
+    }
+
+    if (hasLoadedFormPanelWidth) {
+      window.localStorage.setItem(FORM_PANEL_WIDTH_STORAGE_KEY, String(leftWidth))
+    }
+  }, [leftWidth, hasLoadedFormPanelWidth, isFormCollapsed, isPreviewCollapsed])
 
   useEffect(() => {
     setStatus((current) => (current === 'Actualizando...' ? current : 'Actualizando...'))
@@ -183,20 +351,24 @@ export function PagePreviewPanel() {
     return () => window.removeEventListener('message', handleMessage)
   }, [dispatchField, setModified, url])
 
-  const handleResizeStart = (event: PointerEvent<HTMLButtonElement>) => {
+  const handleResizeStart = (event: PointerEvent<HTMLDivElement>) => {
     event.preventDefault()
+    event.stopPropagation()
 
     const startX = event.clientX
-    const startWidth = panelWidth
+    const startWidth = leftWidth === 0 ? 0 : leftWidth
 
-    document.body.classList.add('is-resizing-page-preview')
+    setIsFormCollapsed(false)
+    setIsPreviewCollapsed(false)
+
+    document.body.classList.add('is-resizing-page-composer-split')
 
     const handlePointerMove = (moveEvent: globalThis.PointerEvent) => {
-      setPanelWidth(clampPanelWidth(startWidth + startX - moveEvent.clientX))
+      setLeftWidth(clampFormPanelWidth(startWidth + moveEvent.clientX - startX))
     }
 
     const handlePointerUp = () => {
-      document.body.classList.remove('is-resizing-page-preview')
+      document.body.classList.remove('is-resizing-page-composer-split')
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerup', handlePointerUp)
     }
@@ -205,45 +377,103 @@ export function PagePreviewPanel() {
     window.addEventListener('pointerup', handlePointerUp, { once: true })
   }
 
-  const handleResizeKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+  const handleResizeKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'ArrowLeft') {
       event.preventDefault()
-      setPanelWidth((current) => clampPanelWidth(current + 32))
+      setIsFormCollapsed(false)
+      setIsPreviewCollapsed(false)
+      setLeftWidth((current) => clampFormPanelWidth(current - 32))
     }
 
     if (event.key === 'ArrowRight') {
       event.preventDefault()
-      setPanelWidth((current) => clampPanelWidth(current - 32))
+      setIsFormCollapsed(false)
+      setIsPreviewCollapsed(false)
+      setLeftWidth((current) => clampFormPanelWidth(current + 32))
     }
 
     if (event.key === 'Home') {
       event.preventDefault()
-      setPanelWidth(MIN_PANEL_WIDTH)
+      setLeftWidth(MIN_FORM_PANEL_WIDTH)
     }
 
     if (event.key === 'End') {
       event.preventDefault()
-      setPanelWidth(MAX_PANEL_WIDTH)
+      setLeftWidth(MAX_FORM_PANEL_WIDTH)
     }
   }
 
+  const toggleFormPanel = (event: PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    if (isFormCollapsed) {
+      setLeftWidth(clampFormPanelWidth(lastFormPanelWidthRef.current))
+      setIsFormCollapsed(false)
+      return
+    }
+
+    lastFormPanelWidthRef.current = leftWidth
+    setIsPreviewCollapsed(false)
+    setLeftWidth(0)
+    setIsFormCollapsed(true)
+  }
+
+  const togglePreviewPanel = (event: PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    if (isPreviewCollapsed) {
+      setLeftWidth(clampFormPanelWidth(lastFormPanelWidthRef.current))
+      setIsPreviewCollapsed(false)
+      return
+    }
+
+    lastFormPanelWidthRef.current = leftWidth
+    setIsFormCollapsed(false)
+    setIsPreviewCollapsed(true)
+  }
+
   return (
-    <section className={`app-page-preview${isExpanded ? ' is-expanded' : ''}`}>
-      <button
-        aria-label="Cambiar ancho de la vista previa"
-        aria-valuemax={MAX_PANEL_WIDTH}
-        aria-valuemin={MIN_PANEL_WIDTH}
-        aria-valuenow={panelWidth}
-        className="app-page-preview__resize-handle"
-        onDoubleClick={() => setPanelWidth(DEFAULT_PANEL_WIDTH)}
+    <>
+      <div
+        aria-label="Redimensionar formulario y vista previa"
+        aria-valuemax={MAX_FORM_PANEL_WIDTH}
+        aria-valuemin={0}
+        aria-valuenow={leftWidth === 0 ? 0 : leftWidth}
+        className="admin-splitter"
+        onDoubleClick={() => setLeftWidth(DEFAULT_FORM_PANEL_WIDTH)}
         onKeyDown={handleResizeKeyDown}
         onPointerDown={handleResizeStart}
         role="slider"
-        title="Arrastra para cambiar el ancho. Doble clic para restablecer."
-        type="button"
+        tabIndex={0}
+        title="Arrastra para redimensionar el formulario. Doble clic para restablecer."
       >
-        <span />
-      </button>
+        <div className="admin-splitter-line" />
+        <div className="admin-splitter-grip">
+          <button
+            aria-label={isPreviewCollapsed ? 'Restaurar vista previa' : 'Ocultar vista previa'}
+            className="admin-splitter-btn"
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={togglePreviewPanel}
+            title={isPreviewCollapsed ? 'Restaurar vista previa' : 'Ocultar vista previa'}
+            type="button"
+          >
+            ◀
+          </button>
+          <button
+            aria-label={isFormCollapsed ? 'Restaurar formulario' : 'Ocultar formulario'}
+            className="admin-splitter-btn"
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={toggleFormPanel}
+            title={isFormCollapsed ? 'Restaurar formulario' : 'Ocultar formulario'}
+            type="button"
+          >
+            ▶
+          </button>
+        </div>
+      </div>
+      <section className={`admin-right-panel app-page-preview${isExpanded ? ' is-expanded' : ''}`}>
       <div className="app-page-preview__header">
         <div>
           <p>VISTA PREVIA</p>
@@ -251,7 +481,7 @@ export function PagePreviewPanel() {
           <span>{status}</span>
         </div>
         <div>
-          {(['desktop', 'tablet', 'mobile'] as PreviewDevice[]).map((item) => (
+          {(['desktop', 'laptop', 'tablet', 'mobile'] as PreviewDevice[]).map((item) => (
             <button
               aria-pressed={device === item}
               className={device === item ? 'is-active' : undefined}
@@ -259,7 +489,13 @@ export function PagePreviewPanel() {
               onClick={() => setDevice(item)}
               type="button"
             >
-              {item === 'desktop' ? 'Escritorio' : item === 'tablet' ? 'Tablet' : 'Movil'}
+              {item === 'desktop'
+                ? 'Desktop'
+                : item === 'laptop'
+                  ? 'Laptop'
+                  : item === 'tablet'
+                    ? 'Tablet'
+                    : 'Mobile'}
             </button>
           ))}
           <button onClick={() => setRefreshKey((current) => current + 1)} type="button">
@@ -268,22 +504,71 @@ export function PagePreviewPanel() {
           <button onClick={() => setIsExpanded((current) => !current)} type="button">
             {isExpanded ? 'Reducir' : 'Ampliar'}
           </button>
+          <button
+            onClick={() => {
+              if (leftWidth === 0) {
+                setLeftWidth(clampFormPanelWidth(lastFormPanelWidthRef.current))
+                setIsFormCollapsed(false)
+                return
+              }
+
+              lastFormPanelWidthRef.current = leftWidth
+              setLeftWidth(0)
+              setIsFormCollapsed(true)
+            }}
+            type="button"
+          >
+            {isFormCollapsed ? 'Mostrar campos' : 'Ocultar campos'}
+          </button>
           <a href={url} rel="noreferrer" target="_blank">
             Abrir
           </a>
         </div>
       </div>
-      <div className="app-page-preview__frame-wrap" data-device={device}>
+      <button
+        aria-pressed={isFormCollapsed}
+        className="app-page-preview__collapse-form-toggle"
+        onClick={() => {
+          if (leftWidth === 0) {
+            setLeftWidth(clampFormPanelWidth(lastFormPanelWidthRef.current))
+            setIsFormCollapsed(false)
+            return
+          }
+
+          lastFormPanelWidthRef.current = leftWidth
+          setLeftWidth(0)
+          setIsFormCollapsed(true)
+        }}
+        title={isFormCollapsed ? 'Mostrar formulario' : 'Colapsar formulario'}
+        type="button"
+      >
+        <span>{isFormCollapsed ? '>' : '<'}</span>
+        <strong>{isFormCollapsed ? 'Campos' : 'Preview'}</strong>
+      </button>
+      <div
+        className="app-page-preview__frame-wrap"
+        data-device={device}
+        ref={frameWrapRef}
+        style={{
+          '--preview-scale': previewScale,
+          '--preview-viewport-width': `${selectedViewportWidth}px`,
+          '--preview-scaled-height': `${scaledPreviewHeight}px`,
+        } as CSSProperties}
+      >
         <iframe
           className="app-page-preview__frame"
           key={`${url}-${refreshKey}`}
           onLoad={() => setIsLoaded(true)}
           ref={iframeRef}
           src={url}
-          style={{ maxWidth: deviceWidths[device] }}
+          style={{
+            height: scaledPreviewHeight,
+            width: selectedViewportWidth,
+          }}
           title="Vista previa de pagina"
         />
       </div>
-    </section>
+      </section>
+    </>
   )
 }

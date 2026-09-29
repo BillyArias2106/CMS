@@ -98,11 +98,11 @@ export function ContactForm({ locale }: ContactFormProps) {
 
   return (
     <form
-      className="grid gap-5 rounded-[18px] bg-white p-6 shadow-[0_24px_70px_rgba(9,18,52,0.08)] sm:p-8"
+      className="grid max-w-full gap-4 rounded-[18px] bg-white p-4 shadow-[0_24px_70px_rgba(9,18,52,0.08)] sm:gap-5 sm:p-8"
       onSubmit={handleSubmit}
     >
-      <div className="grid gap-5 sm:grid-cols-2">
-        <label className="block">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2 sm:gap-5">
+        <label className="block min-w-0">
           <span className="sr-only">{text.contact.firstName}</span>
           <input
             autoComplete="given-name"
@@ -118,7 +118,7 @@ export function ContactForm({ locale }: ContactFormProps) {
             </span>
           ) : null}
         </label>
-        <label className="block">
+        <label className="block min-w-0">
           <span className="sr-only">{text.contact.lastName}</span>
           <input
             autoComplete="family-name"
@@ -131,11 +131,11 @@ export function ContactForm({ locale }: ContactFormProps) {
         </label>
       </div>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className="sr-only">{text.contact.phone}</span>
         <input
           autoComplete="tel"
-          className="h-12 w-full rounded-md border border-[#8daaff] bg-[#f0f4ff] px-4 text-sm font-medium text-[#07164b] outline-none transition placeholder:text-[#1a3170] focus:border-[#27337e] focus:bg-white sm:w-3/5"
+          className="h-12 w-full rounded-md border border-[#8daaff] bg-[#f0f4ff] px-4 text-sm font-medium text-[#07164b] outline-none transition placeholder:text-[#1a3170] focus:border-[#27337e] focus:bg-white lg:w-3/5"
           name="phone"
           onChange={updateField('phone')}
           placeholder={text.contact.phone}
@@ -148,7 +148,7 @@ export function ContactForm({ locale }: ContactFormProps) {
         ) : null}
       </label>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className="sr-only">{text.contact.email}</span>
         <input
           autoComplete="email"
@@ -166,10 +166,10 @@ export function ContactForm({ locale }: ContactFormProps) {
         ) : null}
       </label>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className="sr-only">{text.contact.subject}</span>
         <input
-          className="h-12 w-full rounded-md border border-[#8daaff] bg-[#f0f4ff] px-4 text-sm font-medium text-[#07164b] outline-none transition placeholder:text-[#1a3170] focus:border-[#27337e] focus:bg-white sm:w-3/5"
+          className="h-12 w-full rounded-md border border-[#8daaff] bg-[#f0f4ff] px-4 text-sm font-medium text-[#07164b] outline-none transition placeholder:text-[#1a3170] focus:border-[#27337e] focus:bg-white lg:w-3/5"
           name="subject"
           onChange={updateField('subject')}
           placeholder={text.contact.subject}
@@ -182,7 +182,7 @@ export function ContactForm({ locale }: ContactFormProps) {
         ) : null}
       </label>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className="sr-only">{text.contact.message}</span>
         <textarea
           className="min-h-32 w-full resize-y rounded-md border border-[#8daaff] bg-[#f0f4ff] px-4 py-4 text-sm font-medium text-[#07164b] outline-none transition placeholder:text-[#1a3170] focus:border-[#27337e] focus:bg-white"
@@ -198,9 +198,9 @@ export function ContactForm({ locale }: ContactFormProps) {
         ) : null}
       </label>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
         <button
-          className="inline-flex h-12 w-fit items-center gap-2 rounded-md bg-[#27337e] px-7 font-heading text-sm font-bold text-white transition hover:bg-[#16205f] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-12 w-full max-w-full items-center justify-center gap-2 rounded-md bg-[#27337e] px-5 py-3 text-center font-heading text-sm font-bold leading-tight text-white transition hover:bg-[#16205f] disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit sm:px-7"
           disabled={isSubmitting}
           type="submit"
         >

@@ -78,6 +78,7 @@ export function SliceRenderer({ isPreview = false, page, siteProfile }: SliceRen
 
   return (
     <main
+      className="max-w-[100vw] overflow-x-clip"
       data-page-preview={isPreview ? 'true' : undefined}
       data-site-profile={siteProfile}
     >

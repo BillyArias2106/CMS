@@ -10,11 +10,142 @@
   --theme-error-500: #ff6b6b;
   --theme-warning-500: #f8d66d;
   --theme-blue-500: #8de1e8;
-  --cms-profesional-page-preview-width: 520px;
+  --cms-profesional-page-form-width: 480px;
+  --left-panel-width: 480px;
+  --page-composer-available-height: calc(100vh - 298px);
+  --page-composer-panel-top-offset: 1.25rem;
+  --ds-space-1: 0.25rem;
+  --ds-space-2: 0.5rem;
+  --ds-space-3: 0.75rem;
+  --ds-space-4: 1rem;
+  --ds-space-5: 1.25rem;
+  --ds-space-6: 1.5rem;
+  --ds-space-8: 2rem;
+  --ds-radius-sm: 0.5rem;
+  --ds-radius-md: 0.75rem;
+  --ds-radius-lg: 1rem;
+  --ds-border-subtle: color-mix(in srgb, var(--theme-blue-500), transparent 82%);
+  --text-xs-fluid: clamp(0.72rem, 0.69rem + 0.15vw, 0.8rem);
+  --text-sm-fluid: clamp(0.82rem, 0.78rem + 0.2vw, 0.94rem);
+  --text-base-fluid: clamp(0.94rem, 0.88rem + 0.28vw, 1.06rem);
+  --text-lg-fluid: clamp(1.05rem, 0.96rem + 0.45vw, 1.25rem);
+  --text-title-fluid: clamp(1.65rem, 1.18rem + 2.25vw, 2.75rem);
+}
+
+.template-default,
+.template-default body {
+  max-width: 100vw;
+  min-width: 0;
+  overflow-x: clip;
+  width: 100%;
 }
 
 .template-default {
   background-color: var(--theme-bg);
+}
+
+.template-default,
+.template-default * ,
+.template-default *::before,
+.template-default *::after {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.template-default :where(.payload-admin, main, section, article, aside, header, footer, nav, div, form, fieldset, label, ul, ol, li, dl, figure, figcaption) {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.template-default :where(p, h1, h2, h3, h4, h5, h6, a, button, label, span, small, strong, li, input, textarea, select, th, td, code, pre) {
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+  word-break: break-word;
+}
+
+.template-default :where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+.template-default :where(img, video, canvas, svg, iframe, picture) {
+  display: block;
+  max-width: 100%;
+}
+
+.template-default :where(img, video, canvas, picture) {
+  height: auto;
+}
+
+.template-default :where(svg) {
+  flex-shrink: 0;
+}
+
+.template-default :where(table) {
+  border-collapse: collapse;
+  inline-size: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.template-default :where(pre) {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.template-default :where(input, textarea, select, button) {
+  font: inherit;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.template-default :where(input, textarea, select) {
+  inline-size: 100%;
+}
+
+.template-default :where(button, [role='button']) {
+  align-items: center;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.template-default :where(fieldset) {
+  min-inline-size: 0;
+}
+
+.template-default :where(.field-type, .field-type__wrap, .render-fields, .tabs-field, .tabs-field__content, .array-field, .blocks-field, .group-field, .collapsible, .relationship, .relationship__wrap, .upload, .rich-text, .lexical-editor) {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.template-default :where(.field-type input, .field-type textarea, .field-type select, .field-type .rs__control, .field-type .react-select, .field-type .code-editor) {
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+}
+
+.template-default :where(.field-description, .field-error, .error, .tooltip, .pill, .rs__single-value, .rs__multi-value__label) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.template-default :where(.flex, [class*='flex'], .grid, [class*='grid']) > * {
+  min-width: 0;
+}
+
+.template-default :where(.flex, [class*='flex']) {
+  min-width: 0;
+}
+
+.template-default :where(.popup, .popover, [role='dialog'], [role='menu'], [role='listbox'], [role='combobox'], [popover], dialog, .drawer, .blocks-drawer) {
+  max-height: min(88dvh, 56rem);
+  max-width: min(96vw, 72rem);
+}
+
+.template-default :where(.popup, .popover, [role='menu'], [role='listbox'], [popover], .blocks-drawer) {
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 /* The active locale is already visible in the admin toolbar. Keep field labels clean. */
@@ -24,42 +155,62 @@
 
 .collection-edit--pages:has(.app-page-preview) {
   .document-fields {
-    --main-width: calc(100% - min(var(--cms-profesional-page-preview-width), 58vw));
+    --main-width: var(--left-panel-width);
     --main-border: none;
     --main-field-margin: initial;
-    --sidebar-gutter-h-left: calc(var(--base) * 1.25);
-    --sidebar-wrap-min-width: 300px;
-    --sidebar-wrap-width: min(var(--cms-profesional-page-preview-width), 58vw);
+    --sidebar-gutter-h-left: 0px;
+    --sidebar-wrap-min-width: 0;
+    --sidebar-wrap-width: calc(100% - var(--left-panel-width));
+    column-gap: 0 !important;
+    display: block !important;
+    gap: 0 !important;
+    height: var(--page-composer-available-height) !important;
+    max-width: 100% !important;
+    min-height: min(760px, calc(100dvh - 2rem)) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    position: relative !important;
+    width: 100% !important;
   }
 
   .document-fields__edit {
-    transition: width 120ms ease;
+    flex: 0 0 var(--left-panel-width) !important;
+    height: 100% !important;
+    max-width: var(--left-panel-width) !important;
+    min-height: min(var(--page-composer-available-height), calc(100dvh - 2rem)) !important;
+    min-width: 0 !important;
+    overflow-y: hidden !important;
+    width: var(--left-panel-width) !important;
+  }
+
+  .document-fields__edit > .render-fields {
+    height: calc(100% - var(--page-composer-panel-top-offset) - 0.75rem) !important;
+    margin-top: var(--page-composer-panel-top-offset) !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .document-fields__edit .tabs-field,
+  .document-fields__edit .tabs-field__content {
+    min-height: 100% !important;
   }
 
   .document-fields__sidebar-wrap {
-    border-left: 1px solid color-mix(in srgb, var(--theme-blue-500), var(--theme-elevation-200) 64%);
-    position: var(--sidebar-wrap-position, sticky);
-    transition:
-      min-width 120ms ease,
-      width 120ms ease;
-  }
-
-  .document-fields__sidebar-wrap::before {
-    background:
-      linear-gradient(
-        to bottom,
-        transparent,
-        color-mix(in srgb, var(--theme-blue-500), transparent 28%) 18%,
-        color-mix(in srgb, var(--theme-blue-500), transparent 28%) 82%,
-        transparent
-      );
-    bottom: 0;
-    content: '';
-    left: -1px;
-    pointer-events: none;
-    position: absolute;
-    top: 0;
-    width: 1px;
+    border-left: 0;
+    bottom: 0 !important;
+    flex: none !important;
+    height: 100% !important;
+    left: var(--left-panel-width) !important;
+    margin-left: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
+    width: auto !important;
   }
 
   .document-fields__sidebar,
@@ -70,6 +221,9 @@
 
   .document-fields__sidebar-fields {
     height: 100%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
     padding-bottom: calc(var(--base) * 1.5);
   }
 
@@ -79,22 +233,91 @@
     flex-direction: column;
   }
 
+  .document-fields__sidebar-fields > .render-fields:has(.admin-splitter) {
+    display: flex !important;
+    flex-direction: row !important;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+  }
+
   .document-fields__sidebar-fields > .render-fields:has(.app-page-preview) {
     height: 100%;
   }
 }
 
-.is-resizing-page-preview {
+.is-page-form-collapsed .collection-edit--pages:has(.app-page-preview) {
+  .document-fields {
+    --main-width: 0px;
+    --left-panel-width: 0px;
+    --sidebar-gutter-h-left: 0px;
+    --sidebar-wrap-min-width: 100%;
+    --sidebar-wrap-width: 100%;
+  }
+
+  .document-fields__edit {
+    flex-basis: 0 !important;
+    max-width: 0 !important;
+    min-width: 0 !important;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    width: 0 !important;
+  }
+
+  .document-fields__sidebar-wrap {
+    border-left: 0;
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .document-fields__sidebar-wrap::before {
+    display: none;
+  }
+}
+
+.is-page-preview-collapsed .collection-edit--pages:has(.app-page-preview) {
+  .document-fields {
+    --main-width: calc(100% - 24px);
+    --left-panel-width: calc(100% - 24px);
+    --sidebar-gutter-h-left: 0px;
+    --sidebar-wrap-min-width: 24px;
+    --sidebar-wrap-width: 24px;
+  }
+
+  .document-fields__edit {
+    flex: 0 0 calc(100% - 24px) !important;
+    max-width: calc(100% - 24px) !important;
+    min-width: 0 !important;
+    width: calc(100% - 24px) !important;
+  }
+
+  .document-fields__sidebar-wrap {
+    border-left: 0;
+    flex: none !important;
+    left: calc(100% - 24px) !important;
+    max-width: 24px !important;
+    min-width: 24px !important;
+    overflow: visible;
+    right: 0 !important;
+    width: 24px !important;
+  }
+}
+
+.is-resizing-page-composer-split {
   cursor: col-resize;
   user-select: none;
 }
 
-.is-resizing-page-preview iframe {
+.is-resizing-page-composer-split iframe {
   pointer-events: none;
 }
 
 .blocks-drawer__blocks {
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)) !important;
 }
 
 .blocks-drawer__block-group-label {
@@ -135,12 +358,71 @@
 
 @media (max-width: 900px) {
   .blocks-drawer__blocks {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)) !important;
   }
 }
 
 @media (max-width: 560px) {
   .blocks-drawer__blocks {
     grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .collection-edit--pages:has(.app-page-preview) {
+    .document-fields {
+      min-height: 0 !important;
+      overflow: visible !important;
+    }
+
+    .document-fields__edit,
+    .document-fields__sidebar-wrap {
+      min-width: 0 !important;
+      width: 100% !important;
+    }
+  }
+}
+
+/* Company settings is a full-page global, not a split Page Builder view. */
+.global-edit--company-settings {
+  .document-fields {
+    display: block !important;
+    height: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 var(--gutter-h) var(--base) !important;
+    width: 100% !important;
+  }
+
+  .document-fields__edit {
+    background: transparent !important;
+    flex: 1 1 auto !important;
+    height: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .document-fields__edit > .render-fields {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    height: auto !important;
+    margin-top: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: min(100%, 96rem) !important;
+  }
+
+  .tabs-field,
+  .tabs-field__content {
+    min-height: 0 !important;
+    width: 100% !important;
   }
 }

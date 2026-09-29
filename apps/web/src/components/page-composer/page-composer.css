@@ -418,6 +418,8 @@
 
 .composer-custom-canvas-editor {
   background: #eef4fb;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   position: relative;
 }
@@ -436,9 +438,15 @@
   gap: 0.35rem;
   min-height: 3rem;
   overflow-x: auto;
+  overscroll-behavior-inline: contain;
   padding: 0.45rem 0.7rem;
   position: relative;
+  scrollbar-width: none;
   z-index: 12;
+}
+
+.composer-canvas-topbar::-webkit-scrollbar {
+  display: none;
 }
 
 .composer-canvas-topbar button,
@@ -450,8 +458,12 @@
   font-family: Montserrat, sans-serif;
   font-size: 0.76rem;
   font-weight: 800;
+  flex: 0 0 auto;
+  max-width: 12rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 0.45rem 0.62rem;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .composer-canvas-topbar button {
@@ -474,8 +486,9 @@
 .composer-canvas-workbench {
   display: grid;
   gap: 0.9rem;
-  grid-template-columns: minmax(0, 1fr) minmax(10rem, 14rem);
+  grid-template-columns: minmax(0, 1fr) minmax(min(100%, 10rem), 14rem);
   isolation: isolate;
+  min-width: 0;
   padding: clamp(0.75rem, 2vw, 1.2rem);
   position: relative;
   z-index: 2;
@@ -488,8 +501,11 @@
 
 .composer-canvas-viewport {
   display: grid;
+  max-width: 100%;
   min-height: calc(var(--canvas-height) * var(--canvas-zoom));
+  min-width: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   place-items: start center;
 }
 
@@ -504,6 +520,7 @@
     linear-gradient(135deg, rgb(248 251 255 / 0.94), rgb(237 243 251 / 0.9));
   box-shadow: 0 30px 90px rgb(7 22 75 / 0.16);
   height: var(--canvas-height);
+  min-width: 0;
   overflow: hidden;
   position: relative;
   transform: scale(var(--canvas-zoom));
@@ -593,8 +610,12 @@
   display: inline-flex;
   height: 100%;
   justify-content: center;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 0 1rem;
+  text-align: center;
   text-decoration: none;
+  white-space: normal;
   width: 100%;
 }
 
@@ -660,13 +681,19 @@
   display: flex;
   gap: 0.28rem;
   left: var(--toolbar-x);
-  max-width: min(92%, 48rem);
+  max-width: calc(100% - 1rem);
   overflow-x: auto;
+  overscroll-behavior-inline: contain;
   padding: 0.35rem;
   position: absolute;
+  scrollbar-width: none;
   top: var(--toolbar-y);
   transform: translateX(-50%);
   z-index: 30;
+}
+
+.composer-canvas-toolbar::-webkit-scrollbar {
+  display: none;
 }
 
 .composer-canvas-toolbar button,
@@ -679,18 +706,21 @@
   color: inherit;
   font-size: 0.72rem;
   font-weight: 800;
+  flex: 0 0 auto;
   min-height: 1.85rem;
+  min-width: 0;
   padding: 0.25rem 0.45rem;
+  white-space: normal;
 }
 
 .composer-canvas-toolbar input {
-  min-width: 7rem;
+  max-width: 10rem;
+  width: clamp(5.5rem, 24vw, 8rem);
 }
 
 .composer-canvas-toolbar .composer-canvas-toolbar__size-input {
-  min-width: 3.2rem;
   text-align: center;
-  width: 3.2rem;
+  width: 3.4rem;
 }
 
 .composer-canvas-toolbar input[type='color'] {
@@ -711,6 +741,8 @@
   display: grid;
   gap: 0.4rem;
   max-height: min(42rem, 78vh);
+  max-width: 100%;
+  min-width: 0;
   overflow: auto;
   padding: 0.8rem;
 }
@@ -729,8 +761,12 @@
   cursor: pointer;
   display: grid;
   gap: 0.15rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 0.55rem;
   text-align: left;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .composer-canvas-layers button.is-active {
@@ -752,6 +788,87 @@
 
   .composer-canvas-layers {
     max-height: 14rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .composer-custom-canvas-editor {
+    background: #02080c;
+    color: #f8fafc;
+    overflow: hidden;
+  }
+
+  .composer-canvas-topbar {
+    display: none;
+  }
+
+  .composer-custom-canvas-editor.is-editing::before {
+    background: rgb(15 23 42 / 0.92);
+    border: 1px solid rgb(141 225 232 / 0.22);
+    border-radius: 0.9rem;
+    color: #cffafe;
+    content: 'Editor de lienzo disponible solo en desktop. En movil se muestra en modo lectura responsive.';
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    line-height: 1.45;
+    margin: 1rem;
+    padding: 0.9rem 1rem;
+    position: relative;
+    z-index: 20;
+  }
+
+  .composer-canvas-workbench {
+    display: block;
+    padding: 0;
+  }
+
+  .composer-canvas-viewport {
+    display: block;
+    min-height: auto;
+    overflow: hidden;
+  }
+
+  .composer-canvas-surface {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: 1rem;
+    transform: none;
+    width: 100%;
+  }
+
+  .composer-canvas-grid,
+  .composer-canvas-guide,
+  .composer-canvas-toolbar,
+  .composer-canvas-layers,
+  .composer-canvas-resize,
+  .composer-canvas-element__label {
+    display: none !important;
+  }
+
+  .composer-canvas-element {
+    cursor: auto;
+    height: auto;
+    left: auto;
+    max-width: 100%;
+    min-height: 0;
+    opacity: var(--element-opacity);
+    position: relative;
+    top: auto;
+    transform: none;
+    width: 100%;
+  }
+
+  .composer-canvas-element h1,
+  .composer-canvas-element h2,
+  .composer-canvas-element h3,
+  .composer-canvas-element p {
+    height: auto;
+    overflow: visible;
   }
 }
 
@@ -887,7 +1004,10 @@
   display: flex;
   gap: 0.28rem;
   left: 50%;
+  max-width: min(24rem, calc(100vw - 1.5rem));
   opacity: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
   padding: 0.32rem;
   pointer-events: auto;
   position: absolute;
@@ -896,6 +1016,11 @@
   transition: opacity 140ms ease, transform 140ms ease;
   white-space: nowrap;
   z-index: 8;
+  scrollbar-width: none;
+}
+
+.composer-inline-toolbar::-webkit-scrollbar {
+  display: none;
 }
 
 .composer-custom-hero__layer:hover .composer-inline-toolbar,
@@ -914,6 +1039,7 @@
   font-family: Montserrat, sans-serif;
   font-size: 0.74rem;
   font-weight: 800;
+  flex: 0 0 auto;
   height: 1.8rem;
   min-width: 1.8rem;
   padding: 0 0.48rem;
@@ -921,7 +1047,8 @@
 
 .composer-inline-toolbar select {
   background: #181a20;
-  min-width: 7.8rem;
+  max-width: min(12rem, 48vw);
+  min-width: min(7.8rem, 48vw);
 }
 
 .composer-inline-toolbar option {
@@ -1020,6 +1147,7 @@
   align-items: stretch;
   display: flex;
   gap: 1rem;
+  max-width: 100%;
   width: max-content;
 }
 
@@ -1093,6 +1221,7 @@
 .composer-logo-cloud--carousel {
   animation: composerProviderMarquee 34s linear infinite;
   flex-wrap: nowrap;
+  max-width: 100%;
   overflow: hidden;
   width: max-content;
 }
@@ -1548,10 +1677,12 @@
   display: grid;
   gap: clamp(2.5rem, 8vw, 9rem);
   grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+  min-width: 0;
 }
 
 .composer-faq details {
   border-top: 1px solid var(--composer-line);
+  min-width: 0;
   padding-block: 1.25rem;
 }
 
@@ -1566,8 +1697,11 @@
   font-size: 1.25rem;
   font-weight: 700;
   list-style: none;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding-right: 2rem;
   position: relative;
+  word-break: break-word;
 }
 
 .composer-faq summary::-webkit-details-marker {

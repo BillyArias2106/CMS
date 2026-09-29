@@ -85,7 +85,7 @@ export function FeatureGrid({
 
   return (
     <section
-      className={twMerge('relative overflow-hidden py-20 sm:py-28', copy.shell)}
+      className={twMerge('relative overflow-hidden py-16 sm:py-28', copy.shell)}
       data-visual-slice-root
     >
       {siteProfile === 'saas-apple' || siteProfile === 'agency' ? (
@@ -95,16 +95,16 @@ export function FeatureGrid({
         </>
       ) : null}
 
-      <div className="relative mx-auto w-full max-w-7xl px-5 sm:px-8">
-        <div className="max-w-3xl">
+      <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-8">
+        <div className="min-w-0 max-w-3xl">
           {section.eyebrow ? (
-            <p className={twMerge('w-fit rounded-full border border-white/10 bg-white/5 px-4 py-2 font-heading text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md', copy.eyebrow)}>
+            <p className={twMerge('w-fit max-w-full rounded-full border border-white/10 bg-white/5 px-4 py-2 font-heading text-xs font-bold uppercase tracking-[0] backdrop-blur-md', copy.eyebrow)}>
               {section.eyebrow}
             </p>
           ) : null}
           {section.title ? (
             <VisualEditWrapper
-              className="mt-6 max-w-3xl"
+              className="mt-5 max-w-full sm:mt-6 sm:max-w-3xl"
               fieldPath="title"
               isPreview={isPreview}
               label="Titulo"
@@ -112,14 +112,14 @@ export function FeatureGrid({
               sectionIndex={sectionIndex}
               visualOverrides={visualOverrides}
             >
-              <h2 className={twMerge('text-4xl font-black leading-[1.05] tracking-[-0.04em] sm:text-6xl', copy.title)}>
+              <h2 className={twMerge('text-[clamp(2rem,9vw,3.75rem)] font-black leading-[1.08] tracking-[0] sm:leading-[1.05]', copy.title)}>
                 {section.title}
               </h2>
             </VisualEditWrapper>
           ) : null}
           {section.intro ? (
             <VisualEditWrapper
-              className="mt-6 max-w-2xl"
+              className="mt-5 max-w-full sm:mt-6 sm:max-w-2xl"
               fieldPath="intro"
               isPreview={isPreview}
               label="Intro"
@@ -135,30 +135,30 @@ export function FeatureGrid({
         </div>
 
         {items.length > 0 ? (
-          <VisualEditWrapper
-            className="mt-12"
-            fieldPath="items"
-            isPreview={isPreview}
-            label="Tarjetas"
-            maxWidth="76rem"
-            sectionIndex={sectionIndex}
-            visualOverrides={visualOverrides}
+          <div
+            className={twMerge(
+              'mt-10 grid min-w-0 gap-4 sm:mt-12 sm:gap-5',
+              isBento
+                ? 'sm:grid-cols-2 lg:auto-rows-[minmax(220px,auto)] lg:grid-cols-3'
+                : 'grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))]',
+            )}
           >
-            <div
-              className={twMerge(
-                'grid gap-5',
-                isBento ? 'md:auto-rows-[minmax(220px,auto)] md:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-3',
-              )}
-            >
-              {items.map((item, index) => {
-                const mediaUrl = getMediaUrl(item.media)
-                const mediaAlt = getMediaAlt(item.media, item.title ?? '')
+            {items.map((item, index) => {
+              const mediaUrl = getMediaUrl(item.media)
+              const mediaAlt = getMediaAlt(item.media, item.title ?? '')
 
-                return (
-                  <article
-                    className={getCardClassName({ index, isBento, siteProfile })}
-                    key={item.id ?? `${item.title}-${index}`}
-                  >
+              return (
+                <VisualEditWrapper
+                  className={twMerge(getCardClassName({ index, isBento, siteProfile }), 'w-full')}
+                  fieldPath={`items.${index}`}
+                  isPreview={isPreview}
+                  key={item.id ?? `${item.title}-${index}`}
+                  label={`Tarjeta ${index + 1}`}
+                  maxWidth="100%"
+                  sectionIndex={sectionIndex}
+                  visualOverrides={visualOverrides}
+                >
+                  <article className="min-w-0 max-w-full">
                     {mediaUrl ? (
                       <div
                         className={twMerge(
@@ -183,28 +183,49 @@ export function FeatureGrid({
                       </div>
                     ) : null}
 
-                    <h3
-                      className={twMerge(
-                        'font-heading text-2xl font-black leading-tight',
-                        siteProfile === 'government' ? 'text-[#07164b]' : 'text-white',
-                      )}
+                    <VisualEditWrapper
+                      fieldPath={`items.${index}.title`}
+                      isPreview={isPreview}
+                      label={`Titulo ${index + 1}`}
+                      maxWidth="100%"
+                      sectionIndex={sectionIndex}
+                      visualOverrides={visualOverrides}
                     >
-                      {item.title}
-                    </h3>
-                    {item.description ? (
-                      <p
+                      <h3
                         className={twMerge(
-                          'mt-4 text-sm font-medium leading-7',
-                          siteProfile === 'government' ? 'text-[#1f2f52]' : 'text-white/68',
+                          'font-heading text-2xl font-black leading-tight',
+                          siteProfile === 'government' ? 'text-[#07164b]' : 'text-white',
                         )}
                       >
-                        {item.description}
-                      </p>
+                        {item.title}
+                      </h3>
+                    </VisualEditWrapper>
+
+                    {item.description ? (
+                      <VisualEditWrapper
+                        className="mt-4"
+                        fieldPath={`items.${index}.description`}
+                        isPreview={isPreview}
+                        label={`Descripcion ${index + 1}`}
+                        maxWidth="100%"
+                        sectionIndex={sectionIndex}
+                        visualOverrides={visualOverrides}
+                      >
+                        <p
+                          className={twMerge(
+                            'text-sm font-medium leading-7',
+                            siteProfile === 'government' ? 'text-[#1f2f52]' : 'text-white/68',
+                          )}
+                        >
+                          {item.description}
+                        </p>
+                      </VisualEditWrapper>
                     ) : null}
+
                     {item.link?.label && item.link.url ? (
                       <a
                         className={twMerge(
-                          'mt-7 inline-flex font-heading text-sm font-black uppercase tracking-[0.12em]',
+                          'mt-7 inline-flex min-w-0 max-w-full font-heading text-sm font-black uppercase leading-tight tracking-[0]',
                           siteProfile === 'government'
                             ? 'border-b-4 border-blue-900 text-blue-900'
                             : 'rounded-full border border-white/10 bg-white/5 px-4 py-2 text-cyan-100 shadow-[0_0_24px_rgba(141,225,232,0.1)] backdrop-blur transition-all duration-300 hover:border-cyan-100/40 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(141,225,232,0.18)]',
@@ -217,10 +238,10 @@ export function FeatureGrid({
                       </a>
                     ) : null}
                   </article>
-                )
-              })}
-            </div>
-          </VisualEditWrapper>
+                </VisualEditWrapper>
+              )
+            })}
+          </div>
         ) : null}
       </div>
     </section>

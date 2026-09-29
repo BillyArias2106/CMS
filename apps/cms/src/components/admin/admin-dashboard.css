@@ -1,5 +1,7 @@
 .app-admin-dashboard {
-  padding: 2rem;
+  max-width: 100%;
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 2rem);
 }
 
 .app-admin-dashboard__hero {
@@ -61,12 +63,14 @@
 .app-admin-dashboard__grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  min-width: 0;
 }
 
 .app-admin-dashboard__card {
   border: 1px solid color-mix(in srgb, var(--theme-blue-500) 16%, transparent);
   background: color-mix(in srgb, var(--theme-elevation-100) 80%, transparent);
+  min-width: 0;
   padding: 1.25rem;
   text-decoration: none;
   transition:
@@ -93,13 +97,15 @@
 .app-admin-dashboard__split {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
   margin-top: 2rem;
+  min-width: 0;
 }
 
 .app-admin-dashboard__split > div {
   border: 1px solid color-mix(in srgb, var(--theme-blue-500) 14%, transparent);
   background: color-mix(in srgb, var(--theme-elevation-50) 72%, transparent);
+  min-width: 0;
   padding: 1.5rem;
 }
 
@@ -114,7 +120,4 @@
     padding: 1rem;
   }
 
-  .app-admin-dashboard__split {
-    grid-template-columns: 1fr;
-  }
 }

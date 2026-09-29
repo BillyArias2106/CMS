@@ -1,13 +1,16 @@
 .app-color-picker-field {
   display: grid;
   gap: 0.55rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .app-color-picker-field__control {
   align-items: center;
   display: grid;
   gap: 0.65rem;
-  grid-template-columns: 56px minmax(0, 1fr) 44px;
+  grid-template-columns: minmax(2.75rem, 3.5rem) minmax(0, 1fr) minmax(2.5rem, 2.75rem);
+  min-width: 0;
 }
 
 .app-color-picker-field__native {
@@ -17,7 +20,7 @@
   cursor: pointer;
   height: 40px;
   padding: 3px;
-  width: 56px;
+  width: 100%;
 }
 
 .app-color-picker-field__hex {
@@ -27,8 +30,10 @@
   color: var(--theme-text);
   font-family: var(--font-mono);
   height: 40px;
+  min-width: 0;
   padding: 0 0.85rem;
   text-transform: uppercase;
+  width: 100%;
 }
 
 .app-color-picker-field__hex:focus,
@@ -42,13 +47,14 @@
   border-radius: 4px;
   display: block;
   height: 40px;
-  width: 44px;
+  width: 100%;
 }
 
 .app-color-picker-field__swatches {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+  min-width: 0;
 }
 
 .app-color-picker-field__swatch {

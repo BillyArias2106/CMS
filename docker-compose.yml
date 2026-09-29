@@ -32,14 +32,16 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    ports:
+      - '5432:5432'
     environment:
-      POSTGRES_DB: app
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app_dev_password
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-cms_profesional}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!o7z^v&8x41@5E}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U app -d app']
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
       interval: 5s
       timeout: 10s
       retries: 30
@@ -55,7 +57,7 @@ services:
       pnpm --filter @starter/cms dev"
     environment:
       CI: 'true'
-      DATABASE_URL: postgresql://app:app_dev_password@postgres:5432/app
+      DATABASE_URL: ${DATABASE_URL:-postgresql://cms_profesional:%21o7z%5Ev%268x41%405E@postgres:5432/app}
       PAYLOAD_DB_PUSH: 'false'
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-dev-only-change-me}
       PAYLOAD_PUBLIC_SERVER_URL: http://localhost:3001

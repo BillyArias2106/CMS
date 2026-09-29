@@ -1,18 +1,19 @@
 .app-admin-top-nav {
-  display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
   border-bottom: 1px solid
     color-mix(in srgb, var(--theme-blue-500) 18%, transparent);
   background: color-mix(in srgb, var(--theme-elevation-50) 92%, transparent);
+  display: grid;
+  gap: 0.75rem 1rem;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
   padding: 0.75rem 1.5rem;
 }
 
 .app-admin-top-nav__brand {
   color: var(--theme-text);
   font-weight: 700;
+  min-width: 0;
+  overflow-wrap: anywhere;
   text-decoration: none;
   text-transform: uppercase;
 }
@@ -21,14 +22,19 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .app-admin-top-nav__link {
   border: 1px solid color-mix(in srgb, var(--theme-blue-500) 24%, transparent);
   color: color-mix(in srgb, var(--theme-text) 84%, transparent);
+  flex: 0 1 auto;
   font-size: 0.8125rem;
   font-weight: 600;
+  min-width: 0;
   padding: 0.45rem 0.75rem;
+  text-align: center;
   text-decoration: none;
 }
 
@@ -72,7 +78,17 @@
 @media (max-width: 720px) {
   .app-admin-top-nav {
     align-items: flex-start;
+    grid-template-columns: 1fr;
     padding: 0.75rem 1rem;
+  }
+
+  .app-admin-top-nav__links {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .app-admin-top-nav__link {
+    flex: 1 1 min(10rem, 100%);
   }
 
   .app-admin-onboarding-banner {

@@ -8,6 +8,7 @@ import {
   getVisualContentStyle,
   VisualEditWrapper,
 } from '@/components/page-composer/VisualEditWrapper'
+import { normalizeLayerOverride } from '@/components/page-composer/visual-edit-store'
 
 import type { HeroSliceSection, SliceComponentProps } from './types'
 import { getMediaAlt, getMediaUrl, getSafeActions, isVideoMedia } from './types'
@@ -35,12 +36,14 @@ export function HeroSlice({
   const titleStyle = getVisualContentStyle(visualOverrides, 'title')
   const descriptionStyle = getVisualContentStyle(visualOverrides, 'description')
   const buttonsStyle = getVisualContentStyle(visualOverrides, 'buttons')
+  const buttonsOverride = normalizeLayerOverride(visualOverrides?.buttons)
+  const shouldFillButtonsBox = Boolean(buttonsOverride.width || buttonsOverride.height)
   const hasCustomTitleColor = Boolean(titleStyle.color)
 
   return (
     <section
       className={twMerge(
-        'relative isolate min-h-[680px] overflow-hidden px-5 py-24 sm:px-8 sm:py-32',
+        'relative isolate min-h-[640px] overflow-hidden px-4 py-20 sm:min-h-[680px] sm:px-8 sm:py-32',
         hasBackgroundMedia
           ? 'text-white'
           : isGovernment
@@ -82,10 +85,10 @@ export function HeroSlice({
         <div className="pointer-events-none absolute -right-24 top-24 h-72 w-72 rounded-full bg-cyan-200/20 blur-3xl" />
       ) : null}
 
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1.02fr_0.98fr]">
-        <div>
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[1.02fr_0.98fr]">
+        <div className="min-w-0">
           {isPreview && typeof sectionIndex === 'number' ? (
-            <div className="mb-5 w-fit rounded-full border border-cyan-100/18 bg-white/8 px-4 py-2 font-heading text-xs font-black uppercase tracking-[0.16em] text-cyan-100 shadow-[0_0_30px_rgba(141,225,232,0.12)] backdrop-blur-xl">
+            <div className="mb-5 w-fit max-w-full rounded-full border border-cyan-100/18 bg-white/8 px-4 py-2 font-heading text-xs font-black uppercase tracking-[0] text-cyan-100 shadow-[0_0_30px_rgba(141,225,232,0.12)] backdrop-blur-xl">
               Modo visual activo: selecciona una capa para moverla, escalarla o alinearla
             </div>
           ) : null}
@@ -102,7 +105,7 @@ export function HeroSlice({
             >
               <p
                 className={twMerge(
-                  'w-fit rounded-full border px-4 py-2 font-heading text-xs font-black uppercase tracking-[0.22em] backdrop-blur-md',
+                  'w-fit max-w-full rounded-full border px-4 py-2 font-heading text-xs font-black uppercase tracking-[0] backdrop-blur-md',
                   hasBackgroundMedia ? 'text-white/80' : isGovernment ? 'text-blue-900' : 'text-cyan-200',
                   hasBackgroundMedia
                     ? 'border-white/15 bg-white/10 shadow-[0_0_30px_rgba(255,255,255,0.06)]'
@@ -119,7 +122,7 @@ export function HeroSlice({
 
           {section.title ? (
             <VisualEditWrapper
-              className="mt-6 max-w-4xl"
+              className="mt-5 max-w-full sm:mt-6 sm:max-w-4xl"
               fieldPath="title"
               isPreview={isPreview}
               label="Titulo"
@@ -129,7 +132,7 @@ export function HeroSlice({
             >
               <h1
                 className={twMerge(
-                  'text-5xl font-black leading-[0.98] tracking-[-0.055em] sm:text-7xl',
+                  'text-[clamp(2.15rem,10vw,4.5rem)] font-black leading-[1.02] tracking-[0] sm:leading-[0.98]',
                   !isGovernment && !hasCustomTitleColor
                     ? 'bg-gradient-to-r from-white via-white to-gray-400 bg-clip-text text-transparent drop-shadow-[0_20px_50px_rgba(0,0,0,0.45)]'
                     : '',
@@ -143,7 +146,7 @@ export function HeroSlice({
 
           {section.description ? (
             <VisualEditWrapper
-              className="mt-7 max-w-2xl"
+              className="mt-6 max-w-full sm:mt-7 sm:max-w-2xl"
               fieldPath="description"
               isPreview={isPreview}
               label="Descripcion"
@@ -153,7 +156,7 @@ export function HeroSlice({
             >
               <p
                 className={twMerge(
-                  'text-lg font-medium leading-8',
+                  'text-base font-medium leading-7 sm:text-lg sm:leading-8',
                   hasBackgroundMedia ? 'text-white/82' : isGovernment ? 'text-[#1f2f52]' : 'text-silver-300',
                 )}
                 style={descriptionStyle}
@@ -165,7 +168,7 @@ export function HeroSlice({
 
           {actions.length > 0 ? (
             <VisualEditWrapper
-              className="mt-9 max-w-2xl"
+              className="mt-8 max-w-full sm:mt-9 sm:max-w-2xl"
               displayBlock={false}
               fieldPath="buttons"
               isPreview={isPreview}
@@ -174,11 +177,18 @@ export function HeroSlice({
               sectionIndex={sectionIndex}
               visualOverrides={visualOverrides}
             >
-              <div className="flex flex-wrap gap-3" style={buttonsStyle}>
+              <div
+                className="flex min-w-0 max-w-full flex-wrap gap-3"
+                style={{
+                  ...buttonsStyle,
+                  height: shouldFillButtonsBox ? '100%' : buttonsStyle.height,
+                  width: shouldFillButtonsBox ? '100%' : buttonsStyle.width,
+                }}
+              >
                 {actions.map((action, index) => (
                   <a
                     className={twMerge(
-                      'inline-flex min-h-12 items-center px-6 font-heading text-sm font-black uppercase tracking-[0.1em] transition',
+                      'inline-flex min-h-12 min-w-0 max-w-full items-center justify-center px-6 text-center font-heading text-sm font-black uppercase leading-tight tracking-[0] transition',
                       hasBackgroundMedia
                         ? index === 0
                           ? 'rounded-full border border-white/60 bg-white text-slate-950 shadow-[0_0_36px_rgba(255,255,255,0.24)] hover:-translate-y-1 hover:shadow-[0_0_52px_rgba(141,225,232,0.35)]'
@@ -194,7 +204,15 @@ export function HeroSlice({
                     href={action.url}
                     key={action.id ?? action.url}
                     rel={action.openInNewTab ? 'noreferrer' : undefined}
-                    style={buttonsStyle}
+                    style={
+                      shouldFillButtonsBox
+                        ? {
+                            height: '100%',
+                            justifyContent: 'center',
+                            width: actions.length === 1 ? '100%' : undefined,
+                          }
+                        : undefined
+                    }
                     target={action.openInNewTab ? '_blank' : undefined}
                   >
                     {action.label}
@@ -229,7 +247,7 @@ export function HeroSlice({
             >
               <Image
                 alt={mediaAlt}
-                className="h-full min-h-[360px] w-full object-cover"
+                className="h-full min-h-[clamp(18rem,58vw,22.5rem)] w-full object-cover"
                 height={720}
                 src={mediaUrl}
                 width={960}

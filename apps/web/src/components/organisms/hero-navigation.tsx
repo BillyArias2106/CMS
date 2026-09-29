@@ -19,8 +19,8 @@ export function HeroNavigation({
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-cyan-200/15 bg-deep-950/78 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-5 sm:px-8">
-        <a href="/" className="flex items-center gap-3 text-silver-50">
+      <div className="mx-auto flex min-h-20 w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-8">
+        <a href="/" className="flex min-w-0 items-center gap-3 text-silver-50">
           <span className="relative grid h-11 w-11 place-items-center border border-cyan-200/60 bg-cyan-200/10 text-cyan-200 shadow-cyan">
             {logo?.url ? (
               <img
@@ -37,15 +37,15 @@ export function HeroNavigation({
               </>
             )}
           </span>
-          <span className="font-heading text-lg font-bold uppercase tracking-[0]">
+          <span className="min-w-0 max-w-[9rem] truncate font-heading text-base font-bold uppercase tracking-[0] sm:max-w-[14rem] sm:text-lg">
             {companySettings.commercialName}
           </span>
           <span className="hidden h-8 w-px bg-cyan-200/35 sm:block" />
-          <span className="hidden font-heading text-sm font-semibold uppercase text-silver-200 sm:block">
+          <span className="hidden min-w-0 max-w-[22rem] truncate font-heading text-sm font-semibold uppercase text-silver-200 lg:block">
             {companySettings.shortDescription}
           </span>
         </a>
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
           <NavLinkList items={navigationItems} labels={text.navigation} />
           <LanguageSwitcher labels={text.language} locale={locale} />
         </div>

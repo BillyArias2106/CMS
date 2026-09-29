@@ -4,6 +4,8 @@
 
 body {
   margin: 0;
+  max-width: 100vw;
+  overflow-x: clip;
 }
 
 .app-register-page {
@@ -18,10 +20,12 @@ body {
     sans-serif;
   justify-content: center;
   min-height: 100vh;
-  padding: 2rem;
+  min-width: 0;
+  padding: clamp(1rem, 5vw, 2rem);
 }
 
 .app-register-panel {
+  min-width: 0;
   width: min(100%, 30rem);
 }
 
@@ -49,6 +53,8 @@ body {
   display: grid;
   gap: 1rem;
   margin-top: 1.5rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .app-register-form label {
@@ -56,15 +62,19 @@ body {
   display: grid;
   font-size: 0.875rem;
   gap: 0.45rem;
+  min-width: 0;
 }
 
 .app-register-form input {
   background: #07151b;
   border: 1px solid rgba(141, 225, 232, 0.24);
+  box-sizing: border-box;
   color: #f8fafc;
   font: inherit;
   min-height: 2.75rem;
+  min-width: 0;
   padding: 0.65rem 0.75rem;
+  width: 100%;
 }
 
 .app-register-form input:focus {
@@ -75,12 +85,16 @@ body {
 .app-register-form button {
   background: #f8fafc;
   border: 0;
+  box-sizing: border-box;
   color: #02080c;
   cursor: pointer;
   font: inherit;
   font-weight: 700;
   min-height: 2.75rem;
+  min-width: 0;
   padding: 0.75rem;
+  white-space: normal;
+  width: 100%;
 }
 
 .app-register-form button:disabled {

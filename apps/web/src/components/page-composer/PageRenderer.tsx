@@ -1153,8 +1153,13 @@ export const CustomCanvasEditor = ({
     ? (() => {
         const box = getElementBox(primarySelected, breakpoint, canvas)
         const top = box.y > 58 ? box.y - 48 : box.y + box.height + 12
+        const toolbarInset = Math.min(172, Math.max(72, canvasSize.width / 2 - 8))
         return {
-          '--toolbar-x': `${clampNumber(box.x + box.width / 2, 172, canvasSize.width - 172)}px`,
+          '--toolbar-x': `${clampNumber(
+            box.x + box.width / 2,
+            toolbarInset,
+            canvasSize.width - toolbarInset,
+          )}px`,
           '--toolbar-y': `${clampNumber(top, 8, canvasSize.height - 56)}px`,
         } as CSSProperties
       })()
@@ -1183,6 +1188,28 @@ export const CustomCanvasEditor = ({
           <button onClick={() => setZoom((value) => clampNumber(Number((value - 0.1).toFixed(2)), 0.5, 1.5))} type="button">-</button>
           <span>{Math.round(zoom * 100)}%</span>
           <button onClick={() => setZoom((value) => clampNumber(Number((value + 0.1).toFixed(2)), 0.5, 1.5))} type="button">+</button>
+        </div>
+      ) : null}
+      {isPreview ? (
+        <div
+          className="fixed bottom-4 left-3 right-3 z-[99990] flex max-w-[calc(100vw-1.5rem)] flex-wrap justify-end gap-2 rounded-2xl border border-white/15 bg-slate-950/88 p-2 text-white shadow-[0_24px_80px_rgba(0,0,0,0.38)] backdrop-blur-xl sm:left-auto sm:right-4 sm:max-w-[calc(100vw-2rem)]"
+          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          <button
+            className="min-w-0 max-w-full rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-xs font-black uppercase leading-tight tracking-[0] transition hover:border-cyan-200/50 hover:bg-cyan-200 hover:text-slate-950"
+            onClick={() => addElement('paragraph')}
+            type="button"
+          >
+            + Añadir Texto
+          </button>
+          <button
+            className="min-w-0 max-w-full rounded-xl border border-blue-400/60 bg-blue-600 px-4 py-2 text-xs font-black uppercase leading-tight tracking-[0] text-white shadow-lg transition hover:bg-blue-500"
+            onClick={() => addElement('button')}
+            type="button"
+          >
+            + Añadir Botón
+          </button>
         </div>
       ) : null}
       <div className="composer-canvas-workbench" ref={frameRef}>

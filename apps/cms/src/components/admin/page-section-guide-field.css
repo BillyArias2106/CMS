@@ -14,6 +14,8 @@
   overflow: hidden;
   padding: 1.05rem;
   position: relative;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .app-page-section-guide::before {
@@ -34,6 +36,7 @@
   display: flex;
   gap: 1rem;
   justify-content: space-between;
+  min-width: 0;
 }
 
 .app-page-section-guide__eyebrow {
@@ -62,20 +65,23 @@
 .app-page-section-guide__header > span {
   border: 1px solid color-mix(in srgb, var(--theme-elevation-300), transparent 16%);
   color: var(--theme-elevation-700);
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   line-height: 1;
   margin: 0;
+  max-width: 100%;
   padding: 0.5rem 0.6rem;
   text-transform: uppercase;
+  white-space: normal;
 }
 
 .app-page-section-guide__actions {
   display: grid;
   gap: 0.7rem;
-  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+  min-width: 0;
 }
 
 .app-page-section-guide__action {
@@ -92,9 +98,12 @@
   display: grid;
   font-family: inherit;
   gap: 0.35rem;
+  max-width: 100%;
   min-height: 5.5rem;
+  min-width: 0;
   padding: 0.82rem;
   text-align: left;
+  white-space: normal;
 }
 
 .app-page-section-guide__action:hover,
@@ -133,6 +142,6 @@
   }
 
   .app-page-section-guide__header > span {
-    width: max-content;
+    width: fit-content;
   }
 }
